@@ -1,0 +1,14 @@
+[package]
+name = "zlelaunch"
+version = "0.1.0"
+edition = "2021"
+description = "yaml-configured command launcher for zsh"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/acrn/zlelaunch"
+
+[dependencies]
+yaml-rust = "0.4"
+
+[profile.release]
+strip = true
+panic = "abort"
