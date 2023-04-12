@@ -175,10 +175,20 @@ impl<'life> Termination for Exit<'life> {
 
 /// Entrypoint
 fn main() -> Exit<'static> {
-    let mut args = env::args();
-    let filename = match args.nth(1) {
-        Some(f) => f,
-        None => return Exit::ErrorMessage("missing filename argument"),
+    let (filename, print0) = {
+        let mut filename = None;
+        let mut print0 = false;
+        env::args().for_each(|arg| {
+            if arg == "--print0" {
+                print0 = true;
+            } else {
+                filename = Some(arg);
+            }
+        });
+        if filename.is_none() {
+            return Exit::ErrorMessage("missing filename argument");
+        }
+        (filename.unwrap(), print0)
     };
     let file_result = fs::read_to_string(&filename);
     let yaml = match file_result {
@@ -198,8 +208,15 @@ fn main() -> Exit<'static> {
         character: Some('z'),
         command: &edit_command,
     });
-    assign_keys(&mut entries, &keys);
-    output(&entries);
+    if print0 {
+        // Ignore keys and just print every command null-separated
+        entries
+            .into_iter()
+            .for_each(|entry| print!("{}\0", entry.command));
+    } else {
+        assign_keys(&mut entries, &keys);
+        output(&entries);
+    }
     Exit::Ok
 }
 

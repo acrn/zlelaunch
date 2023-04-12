@@ -25,3 +25,13 @@ with the keys `command` and optionally `key`
 - key: c
   command: cargo clippy --no-deps
  ```
+
+For integration with fzf the `--print0` can be used to print all commands without keys
+with NUL delimiters:
+
+```bash
+ctrl_o_menu() { zle -U "$(zlelaunch --print0 .zlelaunch.yml --zero | fzf --read0 --preview='printf {}')
+" }
+zle -N ctrl_o_menu
+bindkey '^o' ctrl_o_menu
+```
